@@ -2,9 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.Linq;
 
-using AForge.Video;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Collections.Generic;
@@ -20,6 +18,7 @@ namespace AForgeNetSeg
         private int[] redBounds;
         private int[] blueBounds;
         private bool segmentationExecuted;
+        private double pixelToCentimeterConversionCoefficient;
 
         public Form1()
         {
@@ -199,6 +198,11 @@ namespace AForgeNetSeg
                 reader.Close();
                 stream.Close();
                 Circle reference = getTopCircle(circles);
+                double pixelDistance = getPixelConversion(circles, reference);
+                int realDistance = int.Parse(realDistanceBox.Text);
+                pixelToCentimeterConversionCoefficient = pixelDistance / realDistance;
+                MessageBox.Show("1 pixel on image is " + pixelToCentimeterConversionCoefficient + " cm.", "Conversion info.",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -224,6 +228,38 @@ namespace AForgeNetSeg
                 }
             }
             return topCircle;
+        }
+
+        private double getPixelConversion(List<Circle> circles, Circle reference)
+        {
+            Circle closestToReferenceCircle = null;
+            double closestDistance = 0.0;
+            foreach (Circle circle in circles)
+            {
+                if (circle.Equals(reference))
+                    continue;
+                else
+                {
+                    if (closestToReferenceCircle == null)
+                    {
+                        closestToReferenceCircle = circle;
+                        closestDistance = Math.Sqrt(Math.Pow(closestToReferenceCircle.x - reference.x, 2) +
+                            Math.Pow(closestToReferenceCircle.y - reference.y, 2));
+                    }
+                    else
+                    {
+                        double currentDistance = Math.Sqrt(Math.Pow(circle.x - reference.x, 2) +
+                            Math.Pow(circle.y - reference.y, 2));
+                        if (currentDistance < closestDistance)
+                        {
+                            closestDistance = currentDistance;
+                            closestToReferenceCircle = circle;
+                        }
+                    }
+                }
+            }
+
+            return closestDistance;
         }
     }
 }

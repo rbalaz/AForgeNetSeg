@@ -54,6 +54,7 @@
             this.label30 = new System.Windows.Forms.Label();
             this.blueUpperLabel = new System.Windows.Forms.Label();
             this.checkButton = new System.Windows.Forms.Button();
+            this.resolveButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
@@ -79,7 +80,7 @@
             this.blueUpperBar = new System.Windows.Forms.HScrollBar();
             this.label16 = new System.Windows.Forms.Label();
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
-            this.resolveButton = new System.Windows.Forms.Button();
+            this.realDistanceBox = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
@@ -203,6 +204,7 @@
             this.flowLayoutPanel5.Controls.Add(this.blueUpperLabel);
             this.flowLayoutPanel5.Controls.Add(this.checkButton);
             this.flowLayoutPanel5.Controls.Add(this.resolveButton);
+            this.flowLayoutPanel5.Controls.Add(this.realDistanceBox);
             this.flowLayoutPanel5.Location = new System.Drawing.Point(126, 3);
             this.flowLayoutPanel5.Name = "flowLayoutPanel5";
             this.flowLayoutPanel5.Size = new System.Drawing.Size(145, 270);
@@ -377,6 +379,17 @@
             this.checkButton.Text = "Check";
             this.checkButton.UseVisualStyleBackColor = true;
             this.checkButton.Click += new System.EventHandler(this.checkButton_Click);
+            // 
+            // resolveButton
+            // 
+            this.resolveButton.Font = new System.Drawing.Font("Monotype Corsiva", 20.25F, System.Drawing.FontStyle.Italic);
+            this.resolveButton.Location = new System.Drawing.Point(3, 221);
+            this.resolveButton.Name = "resolveButton";
+            this.resolveButton.Size = new System.Drawing.Size(97, 41);
+            this.resolveButton.TabIndex = 16;
+            this.resolveButton.Text = "Resolve";
+            this.resolveButton.UseVisualStyleBackColor = true;
+            this.resolveButton.Click += new System.EventHandler(this.resolveButton_Click);
             // 
             // flowLayoutPanel2
             // 
@@ -645,16 +658,13 @@
             // 
             this.openFileDialog2.FileName = "openFileDialog2";
             // 
-            // resolveButton
+            // realDistanceBox
             // 
-            this.resolveButton.Font = new System.Drawing.Font("Monotype Corsiva", 20.25F, System.Drawing.FontStyle.Italic);
-            this.resolveButton.Location = new System.Drawing.Point(3, 221);
-            this.resolveButton.Name = "resolveButton";
-            this.resolveButton.Size = new System.Drawing.Size(142, 41);
-            this.resolveButton.TabIndex = 16;
-            this.resolveButton.Text = "Resolve";
-            this.resolveButton.UseVisualStyleBackColor = true;
-            this.resolveButton.Click += new System.EventHandler(this.resolveButton_Click);
+            this.realDistanceBox.Location = new System.Drawing.Point(106, 230);
+            this.realDistanceBox.Margin = new System.Windows.Forms.Padding(3, 12, 3, 3);
+            this.realDistanceBox.Name = "realDistanceBox";
+            this.realDistanceBox.Size = new System.Drawing.Size(31, 20);
+            this.realDistanceBox.TabIndex = 17;
             // 
             // Form1
             // 
@@ -730,6 +740,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog2;
         private System.Windows.Forms.Button checkButton;
         private System.Windows.Forms.Button resolveButton;
+        private System.Windows.Forms.TextBox realDistanceBox;
     }
 }
 
