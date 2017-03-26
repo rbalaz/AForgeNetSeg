@@ -42,9 +42,9 @@ namespace AForgeNetSeg
             if (greenBounds[0] < greenBounds[1] && redBounds[0] < redBounds[1] && blueBounds[0] < blueBounds[1])
             {
                 Segmentation segmentation = new Segmentation(redBounds, greenBounds, blueBounds, minimumCornerDistance);
-                segmentation.ProcessImage(image);
+                //segmentation.ProcessImage(image);
                 Bitmap resizedImage = ResizeImage(image, 485, 281);
-                //segmentation.ProcessImage(resizedImage);
+                segmentation.ProcessImage(resizedImage);
                 Rectangle rect = new Rectangle(5, 286, 485, 281);
                 tableLayoutGraphics.DrawImage(resizedImage, rect);
                 segmentationExecuted = true;
@@ -132,8 +132,13 @@ namespace AForgeNetSeg
         private void captureButton_Click(object sender, EventArgs e)
         {
             ImageCapture capture = new ImageCapture();
-            //captureImage();
-            capture.getCamImage("http://147.232.24.183/cgi-bin/viewer/video");
+            //capture.captureImage();
+            //capture.getCamImage("http://147.232.24.227/cgi-bin/viewer/video.jpg");
+            //capture.webClientDownloadImage("http://147.232.24.227/cgi-bin/viewer/video.jpg");
+            //capture.httpTesting("http://147.232.24.227/cgi-bin/viewer/video.jpg");
+            //capture.DownloadRemoteImageFile("http://147.232.24.227/cgi-bin/viewer/video.jpg", "test");
+            //capture.tcpDownload("http://147.232.24.227/cgi-bin/viewer/video.jpg");
+            capture.test("http://147.232.24.227/cgi-bin/viewer/video.jpg");
         }
 
         private void stitchButton_Click(object sender, EventArgs e)
@@ -157,20 +162,22 @@ namespace AForgeNetSeg
             if (image != null)
             {
                 Bitmap resizedImage = ResizeImage(image, 485, 281);
-                int averageRed = 0, averageBlue = 0, averageGreen = 0;
-                for (int i = 0; i < 485; i++)
-                    for (int j = 0; j < 281; j++)
-                    {
-                        Color color = resizedImage.GetPixel(i, j);
-                        averageRed += color.R;
-                        averageBlue += color.B;
-                        averageGreen += color.G;
-                    }
-                averageRed /= resizedImage.Height * resizedImage.Width;
-                averageBlue /= resizedImage.Height * resizedImage.Width;
-                averageGreen /= resizedImage.Height * resizedImage.Width;
-                MessageBox.Show("Average red: " + averageRed + " Average blue: " + averageBlue + " Average green: "
-                    + averageGreen, "Image checkup", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                int red, green, blue;
+                string[] pixelCoordinates = checkBox.Text.Split(' ');
+                int x = int.Parse(pixelCoordinates[0]);
+                int y = int.Parse(pixelCoordinates[1]);
+                if (x < 0 || x > 485 || y < 0 || y > 281)
+                    MessageBox.Show("Pixel coordinates are out of range.", "Coordinates error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                {
+                    Color pixelColor = resizedImage.GetPixel(x, y);
+                    red = pixelColor.R;
+                    green = pixelColor.G;
+                    blue = pixelColor.B;
+                    MessageBox.Show("Red: " + red + " Blue: " + blue + " Green: "
+                        + green, "Image checkup", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
             else
                 MessageBox.Show("Image not found!", "Error loading image", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -203,6 +210,7 @@ namespace AForgeNetSeg
                 pixelToCentimeterConversionCoefficient = pixelDistance / realDistance;
                 MessageBox.Show("1 pixel on image is " + pixelToCentimeterConversionCoefficient + " cm.", "Conversion info.",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
+                adjustCoordinatesInFile(reference);
             }
         }
 
@@ -260,6 +268,68 @@ namespace AForgeNetSeg
             }
 
             return closestDistance;
+        }
+
+        private void adjustCoordinatesInFile(Circle reference)
+        {
+            // Map will be resized to 640x480 resolution, with top left corner being a red ball
+            // and bottom right corner having coordinates [640,480]
+            // Original picture is resized to 485x281 resolution
+            FileStream readStream = new FileStream("obstacles.txt", FileMode.Open, FileAccess.Read);
+            StreamReader reader = new StreamReader(readStream);
+            FileStream writeStream = new FileStream("new_obstacles.txt", FileMode.OpenOrCreate, FileAccess.Write);
+            StreamWriter writer = new StreamWriter(writeStream);
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                string[] lineSegments = line.Split(' ');
+                if (lineSegments[0] == "r")
+                    writer.WriteLine(adjustRectangle(lineSegments, reference));
+                if (lineSegments[0] == "e")
+                    writer.WriteLine(adjustEllipse(lineSegments, reference));
+                if (lineSegments[0] == "s" || lineSegments[0] == "p")
+                    writer.WriteLine(adjustPointsShape(lineSegments, reference));
+            }
+            writer.Close();
+            writeStream.Close();
+            reader.Close();
+            readStream.Close();
+        }
+
+        private string adjustRectangle(string[] rectangleSegments, Circle reference)
+        {
+            int adjustedX = (int.Parse(rectangleSegments[1]) - reference.x) * 640 / 485;
+            int adjustedY = (int.Parse(rectangleSegments[2]) - reference.y) * 480 / 281;
+            int adjustedWidth = int.Parse(rectangleSegments[3]) * 640 / 485;
+            int adjustedHeight = int.Parse(rectangleSegments[4]) * 480 / 281;
+            string adjustedRectangle = rectangleSegments[0] + " " + adjustedX + " " + adjustedY + " " +
+                adjustedWidth + " " + adjustedHeight;
+            return adjustedRectangle;
+        }
+
+        private string adjustEllipse(string[] ellipseSegments, Circle reference)
+        {
+            int adjustedX = (int.Parse(ellipseSegments[1]) - reference.x) * 640 / 485;
+            int adjustedY = (int.Parse(ellipseSegments[2]) - reference.y) * 480 / 281;
+            int adjustedWidth = int.Parse(ellipseSegments[3]) * 640 / 485;
+            int adjustedHeight = int.Parse(ellipseSegments[4]) * 480 / 281;
+            string adjustedEllipse = ellipseSegments[0] + " " + adjustedX + " " + adjustedY + " " +
+                adjustedWidth + " " + adjustedHeight;
+            return adjustedEllipse;
+        }
+        private string adjustPointsShape(string[] points, Circle reference)
+        {
+            List<Point> pointsList = new List<Point>();
+            for (int i = 0; i < points.Length; i = i + 2)
+            {
+                int x = (int.Parse(points[i]) - reference.x) * 640 / 480;
+                int y = (int.Parse(points[i]) - reference.y) * 480 / 281;
+                pointsList.Add(new Point(x, y));
+            }
+            string adjustedPoints = points[0];
+            foreach (Point point in pointsList)
+                adjustedPoints = string.Concat(adjustedPoints, " ", point.X, " ", point.Y);
+            return adjustedPoints;
         }
     }
 }
