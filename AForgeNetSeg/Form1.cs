@@ -131,14 +131,8 @@ namespace AForgeNetSeg
 
         private void captureButton_Click(object sender, EventArgs e)
         {
-            ImageCapture capture = new ImageCapture();
-            //capture.captureImage();
-            //capture.getCamImage("http://147.232.24.227/cgi-bin/viewer/video.jpg");
-            //capture.webClientDownloadImage("http://147.232.24.227/cgi-bin/viewer/video.jpg");
-            //capture.httpTesting("http://147.232.24.227/cgi-bin/viewer/video.jpg");
-            //capture.DownloadRemoteImageFile("http://147.232.24.227/cgi-bin/viewer/video.jpg", "test");
-            //capture.tcpDownload("http://147.232.24.227/cgi-bin/viewer/video.jpg");
-            capture.test("http://147.232.24.227/cgi-bin/viewer/video.jpg");
+            ImageCapture capture = new ImageCapture("227");
+            capture.captureFrame();
         }
 
         private void stitchButton_Click(object sender, EventArgs e)
